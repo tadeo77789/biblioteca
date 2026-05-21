@@ -24,24 +24,31 @@ npm install
 
 ```
 frontend/
-├── App.js                    # Punto de entrada, ruteo simple por estado
+├── App.js                       # Entrada, ruteo, estado global, persistencia
 ├── src/
-│   ├── theme.js              # Colores, tipografias, sombras
-│   ├── data.js               # Datos mock: libros, categorias, eventos
+│   ├── theme.js                 # Colores, tipografias, sombras
+│   ├── data.js                  # Libros, categorias, eventos, prestamos por defecto
 │   ├── components/
-│   │   ├── BookCover.js      # Portada de libro (gradiente)
-│   │   ├── BookCard.js       # Tarjeta de libro para catalogo
-│   │   └── Header.js         # Cabecera con buscador y navegacion
+│   │   ├── BookCover.js         # Portada con gradiente
+│   │   ├── BookCard.js          # Tarjeta de libro
+│   │   ├── Header.js            # Cabecera con buscador y nav
+│   │   └── AuthModal.js         # Modal login / registro
 │   └── screens/
-│       └── HomeScreen.js     # Vista de inicio (hero + destacados + eventos)
+│       ├── HomeScreen.js        # Inicio
+│       ├── CatalogScreen.js     # Catalogo con filtros
+│       ├── BookDetailScreen.js  # Detalle de libro
+│       ├── AccountScreen.js     # Mi cuenta (prestamos/reservas/historial)
+│       └── EventsScreen.js      # Eventos y talleres
 ```
 
 ## Estado actual
 
 - [x] Vista de Inicio (hero, libros destacados, generos, novedades, eventos)
-- [ ] Catalogo con busqueda y filtros
-- [ ] Detalle de libro
-- [ ] Login / Registro
-- [ ] Mi cuenta (prestamos, reservas, historial)
-- [ ] Eventos (vista completa)
-- [ ] Integracion con backend (API REST)
+- [x] Catalogo con busqueda y filtros (categoria, disponibilidad, orden)
+- [x] Detalle de libro (sinopsis, ejemplares, solicitar prestamo/reservar, relacionados)
+- [x] Login / Registro (modal, cualquier email/password sirve)
+- [x] Mi cuenta (prestamos activos, reservas, historial; devolver/renovar/cancelar)
+- [x] Eventos (lista de eventos y talleres)
+- [x] Persistencia local con AsyncStorage
+- [x] Toasts para feedback de acciones
+- [ ] Integracion con backend (API REST) — pendiente cuando este listo feature/backend
