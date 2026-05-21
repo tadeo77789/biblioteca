@@ -200,7 +200,19 @@ export default function App() {
         )}
       </View>
 
-      <AuthModal visible={authVisible} mode={authMode} onClose={() => setAuthVisible(false)} onSubmit={handleAuthSubmit} />
+      <AuthModal
+        visible={authVisible}
+        mode={authMode}
+        onClose={() => setAuthVisible(false)}
+        onSubmit={handleAuthSubmit}
+        onResetPassword={(email) => {
+          pushToast({
+            kind: 'info',
+            title: 'Enlace enviado',
+            message: `Si existe una cuenta para ${email}, recibirás un correo con instrucciones para restablecer la contraseña.`,
+          });
+        }}
+      />
 
       <View style={[styles.toastStack, { pointerEvents: 'box-none' }]}>
         {toasts.map(t => (
