@@ -1,0 +1,109 @@
+@startuml MER_Biblioteca
+
+hide circle
+skinparam linetype ortho
+
+entity users {
+
+  * id : BIGINT <<PK>>
+  full_name : VARCHAR
+  email : VARCHAR
+  password : VARCHAR
+  phone : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity roles {
+
+  * id : BIGINT <<PK>>
+  name : VARCHAR
+  description : VARCHAR
+}
+
+entity user_roles {
+
+  * user_id : BIGINT <<FK>>
+  * role_id : BIGINT <<FK>>
+}
+
+entity books {
+
+  * id : BIGINT <<PK>>
+  title: VARCHAR
+  description : TEXT
+  isbn : VARCHAR
+  cover_url : VARCHAR
+  file_url : VARCHAR
+  published_year : INT
+  available : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity authors {
+
+  * id : BIGINT <<PK>>
+  full_name : VARCHAR
+  biography : TEXT
+  birth_date : DATE
+  created_at : TIMESTAMP
+}
+
+entity categories {
+
+  * id : BIGINT <<PK>>
+  name : VARCHAR
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity book_authors {
+
+  * book_id : BIGINT <<FK>>
+  * author_id : BIGINT <<FK>>
+}
+
+entity book_categories {
+
+  * book_id : BIGINT <<FK>>
+  * category_id : BIGINT <<FK>>
+}
+
+entity loans {
+
+  * id : BIGINT <<PK>>
+  user_id : BIGINT <<FK>>
+  book_id : BIGINT <<FK>>
+  loan_date : TIMESTAMP
+  return_date : TIMESTAMP
+  status : VARCHAR
+  created_at : TIMESTAMP
+}
+
+entity reviews {
+
+  * id : BIGINT <<PK>>
+  user_id : BIGINT <<FK>>
+  book_id : BIGINT <<FK>>
+  rating : INT
+  comment : TEXT
+  created_at : TIMESTAMP
+}
+
+users ||--o{ loans
+books ||--o{ loans
+
+users ||--o{ reviews
+books ||--o{ reviews
+
+users ||--o{ user_roles
+roles ||--o{ user_roles
+
+books ||--o{ book_authors
+authors ||--o{ book_authors
+
+books ||--o{ book_categories
+categories ||--o{ book_categories
+
+@enduml
