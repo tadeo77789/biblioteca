@@ -1,12 +1,15 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import BookCover from './BookCover';
-import { colors, fonts, radius, shadow } from '../theme';
+import { colors, fonts, shadow } from '../theme';
 
-export default function BookCard({ book, onPress }) {
+export default function BookCard({ book, onPress, width }) {
   const avail = book.available > 0;
   return (
-    <Pressable onPress={() => onPress && onPress(book.id)} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
+    <Pressable
+      onPress={() => onPress && onPress(book.id)}
+      style={({ pressed }) => [styles.card, width != null && { width }, pressed && styles.pressed]}
+    >
       <View style={styles.coverWrap}>
         <BookCover book={book} size="md" />
       </View>
@@ -21,7 +24,7 @@ export default function BookCard({ book, onPress }) {
         <Text style={styles.rating}>★ {book.rating.toFixed(1)}</Text>
         <View style={[styles.statusChip, avail ? styles.chipTeal : styles.chipWarn]}>
           <Text style={[styles.statusText, { color: avail ? colors.tealDark : colors.warn }]}>
-            {avail ? `${book.available} disponibles` : 'No disponible'}
+            {avail ? `${book.available} disp.` : 'No disp.'}
           </Text>
         </View>
       </View>
@@ -35,8 +38,8 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderWidth: 1,
     borderRadius: 12,
-    padding: 16,
-    gap: 10,
+    padding: 14,
+    gap: 8,
     width: 220,
     ...shadow.sm,
   },
@@ -45,12 +48,12 @@ const styles = StyleSheet.create({
   chipsRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   chip: { backgroundColor: colors.gray, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   chipText: { fontSize: 10, fontWeight: '600', color: colors.ink2, letterSpacing: 0.8, textTransform: 'uppercase' },
-  title: { fontFamily: fonts.serif, fontSize: 18, color: colors.ink, lineHeight: 21 },
+  title: { fontFamily: fonts.serif, fontSize: 17, color: colors.ink, lineHeight: 20 },
   meta: { fontSize: 12, color: colors.ink2 },
-  bottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
+  bottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 2, gap: 6 },
   rating: { color: '#E8A93B', fontWeight: '700', fontSize: 13 },
   statusChip: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
-  statusText: { fontSize: 10, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' },
+  statusText: { fontSize: 10, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase' },
   chipTeal: { backgroundColor: 'rgba(45,150,150,0.12)' },
   chipWarn: { backgroundColor: 'rgba(194,65,12,0.10)' },
 });

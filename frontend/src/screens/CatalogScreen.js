@@ -3,8 +3,10 @@ import { View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-
 import { BOOKS, CATEGORIES } from '../data';
 import BookCard from '../components/BookCard';
 import { colors, fonts, radius } from '../theme';
+import useBreakpoint from '../useBreakpoint';
 
 export default function CatalogScreen({ navigate, search, setSearch, initialCategory }) {
+  const { isMobile, columns, width } = useBreakpoint();
   const [cat, setCat] = useState(initialCategory || 'all');
   const [availability, setAvailability] = useState('any');
   const [sort, setSort] = useState('relevance');
@@ -23,22 +25,25 @@ export default function CatalogScreen({ navigate, search, setSearch, initialCate
     return list;
   }, [search, cat, availability, sort]);
 
+  const pad = isMobile ? 16 : 40;
+  const gap = 14;
+  const gridWidth = width - pad * 2;
+  const cardWidth = Math.max(150, (gridWidth - gap * (columns - 1)) / columns);
+
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 60 }}>
-      <View style={styles.header}>
+      <View style={[styles.header, { padding: pad }]}>
         <Text style={styles.eyebrow}>CATÁLOGO</Text>
-        <Text style={styles.title}>Explora la colección</Text>
+        <Text style={[styles.title, isMobile && styles.titleMobile]}>Explora la colección</Text>
         <Text style={styles.subtitle}>{BOOKS.length} libros en {CATEGORIES.length - 1} categorías</Text>
 
-        <View style={styles.searchRow}>
-          <TextInput
-            style={styles.search}
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Buscar por título, autor o tema…"
-            placeholderTextColor={colors.ink3}
-          />
-        </View>
+        <TextInput
+          style={styles.search}
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Buscar por título, autor o tema…"
+          placeholderTextColor={colors.ink3}
+        />
 
         <View style={styles.filtersBox}>
           <Text style={styles.filterLabel}>CATEGORÍA</Text>
@@ -53,8 +58,8 @@ export default function CatalogScreen({ navigate, search, setSearch, initialCate
             })}
           </ScrollView>
 
-          <View style={styles.filterRow}>
-            <View style={{ flex: 1 }}>
+          <View style={[styles.filterRow, isMobile && { flexDirection: 'column', gap: 12 }]}>
+            <View style={{ flex: 1, minWidth: 200 }}>
               <Text style={styles.filterLabel}>DISPONIBILIDAD</Text>
               <View style={styles.toggleRow}>
                 {[
@@ -70,7 +75,7 @@ export default function CatalogScreen({ navigate, search, setSearch, initialCate
                 })}
               </View>
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, minWidth: 200 }}>
               <Text style={styles.filterLabel}>ORDENAR POR</Text>
               <View style={styles.toggleRow}>
                 {[
@@ -94,11 +99,9 @@ export default function CatalogScreen({ navigate, search, setSearch, initialCate
         <Text style={styles.results}>{filtered.length} resultados</Text>
       </View>
 
-      <View style={styles.grid}>
+      <View style={[styles.grid, { paddingHorizontal: pad, gap }]}>
         {filtered.map(b => (
-          <View key={b.id} style={styles.gridItem}>
-            <BookCard book={b} onPress={(id) => navigate('book', { id })} />
-          </View>
+          <BookCard key={b.id} book={b} width={cardWidth} onPress={(id) => navigate('book', { id })} />
         ))}
         {filtered.length === 0 && (
           <View style={styles.empty}>
@@ -113,18 +116,18 @@ export default function CatalogScreen({ navigate, search, setSearch, initialCate
 
 const styles = StyleSheet.create({
   scroll: { backgroundColor: colors.bg },
-  header: { padding: 40, paddingBottom: 16 },
+  header: { paddingBottom: 16 },
   eyebrow: { color: colors.teal, fontWeight: '700', fontSize: 11, letterSpacing: 2 },
   title: { fontFamily: fonts.serif, fontSize: 40, color: colors.ink, lineHeight: 44, marginTop: 6 },
+  titleMobile: { fontSize: 28, lineHeight: 32 },
   subtitle: { fontSize: 14, color: colors.ink2, marginTop: 6 },
-  searchRow: { marginTop: 20 },
   search: {
     backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1, borderRadius: radius.sm,
-    paddingHorizontal: 16, paddingVertical: 12, fontSize: 15,
+    paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, marginTop: 20,
   },
-  filtersBox: { backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1, borderRadius: radius.md, padding: 18, marginTop: 16, gap: 14 },
-  filterLabel: { fontSize: 10, fontWeight: '700', color: colors.ink2, letterSpacing: 1.4, marginBottom: 6 },
-  filterRow: { flexDirection: 'row', gap: 24, flexWrap: 'wrap' },
+  filtersBox: { backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1, borderRadius: radius.md, padding: 16, marginTop: 14, gap: 12 },
+  filterLabel: { fontSize: 10, fontWeight: '700', color: colors.ink2, letterSpacing: 1.2, marginBottom: 6 },
+  filterRow: { flexDirection: 'row', gap: 20, flexWrap: 'wrap' },
   chipRow: { gap: 8, paddingVertical: 2 },
   chip: { backgroundColor: colors.gray, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999 },
   chipActive: { backgroundColor: colors.blue },
@@ -135,10 +138,9 @@ const styles = StyleSheet.create({
   toggleActive: { backgroundColor: colors.teal },
   toggleText: { fontSize: 12, color: colors.ink2, fontWeight: '600' },
   toggleTextActive: { color: '#fff' },
-  results: { color: colors.ink2, fontSize: 13, fontWeight: '600', marginTop: 18 },
+  results: { color: colors.ink2, fontSize: 13, fontWeight: '600', marginTop: 14 },
 
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingHorizontal: 40 },
-  gridItem: {},
+  grid: { flexDirection: 'row', flexWrap: 'wrap' },
   empty: { padding: 40, alignItems: 'center', width: '100%' },
   emptyTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.ink, marginBottom: 6 },
   emptyText: { color: colors.ink2, fontSize: 14 },

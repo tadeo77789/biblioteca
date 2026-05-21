@@ -12,10 +12,12 @@ import EventsScreen from './src/screens/EventsScreen';
 import AccountScreen from './src/screens/AccountScreen';
 import { BOOKS, defaultLoans } from './src/data';
 import { colors, fonts, radius, shadow } from './src/theme';
+import useBreakpoint from './src/useBreakpoint';
 
 const STORAGE_KEY = 'biblio.state.v1';
 
 export default function App() {
+  const { isMobile } = useBreakpoint();
   const [route, setRoute] = useState('home');
   const [bookId, setBookId] = useState(null);
   const [catFilter, setCatFilter] = useState(null);
@@ -214,7 +216,7 @@ export default function App() {
         }}
       />
 
-      <View style={[styles.toastStack, { pointerEvents: 'box-none' }]}>
+      <View style={[styles.toastStack, isMobile && styles.toastStackMobile, { pointerEvents: 'box-none' }]}>
         {toasts.map(t => (
           <View key={t.id} style={[styles.toast, t.kind === 'warn' ? styles.toastWarn : t.kind === 'info' ? styles.toastInfo : styles.toastOk]}>
             <View style={{ flex: 1 }}>
@@ -233,6 +235,7 @@ const styles = StyleSheet.create({
   app: { flex: 1, backgroundColor: colors.bg },
   body: { flex: 1 },
   toastStack: { position: 'absolute', top: 90, right: 16, gap: 10, maxWidth: 360 },
+  toastStackMobile: { top: 70, right: 12, left: 12, maxWidth: undefined },
   toast: {
     backgroundColor: '#fff', borderRadius: radius.md, padding: 14,
     borderColor: colors.line, borderWidth: 1, borderLeftWidth: 4,

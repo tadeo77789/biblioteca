@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { BOOKS } from '../data';
 import { colors, fonts, radius, shadow } from '../theme';
+import useBreakpoint from '../useBreakpoint';
 
 function daysUntil(iso) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -16,17 +17,19 @@ function formatDate(iso) {
 }
 
 export default function AccountScreen({ user, loans, onReturn, onRenew, onCancelReservation, openBook, openAuth, onLogout }) {
+  const { isMobile } = useBreakpoint();
   const [tab, setTab] = useState('active');
+  const pad = isMobile ? 16 : 40;
 
   if (!user) {
     return (
-      <View style={styles.guestWrap}>
-        <Text style={styles.guestTitle}>Acceso a tu cuenta</Text>
+      <View style={[styles.guestWrap, { padding: pad, paddingTop: 60 }]}>
+        <Text style={[styles.guestTitle, isMobile && styles.guestTitleMobile]}>Acceso a tu cuenta</Text>
         <Text style={styles.guestText}>
           Inicia sesión para ver tus préstamos, reservas e historial. Si aún no tienes carné digital,
           puedes crear uno gratis en menos de un minuto.
         </Text>
-        <View style={styles.guestBtns}>
+        <View style={[styles.guestBtns, isMobile && { flexDirection: 'column', alignSelf: 'stretch' }]}>
           <Pressable style={styles.primaryBtn} onPress={() => openAuth('login')}>
             <Text style={styles.primaryBtnText}>Iniciar sesión</Text>
           </Pressable>
@@ -44,12 +47,12 @@ export default function AccountScreen({ user, loans, onReturn, onRenew, onCancel
 
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 80 }}>
-      <View style={styles.header}>
-        <View style={styles.userCard}>
+      <View style={[styles.header, { padding: pad, paddingBottom: 0 }]}>
+        <View style={[styles.userCard, isMobile && styles.userCardMobile]}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</Text>
           </View>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, minWidth: 180 }}>
             <Text style={styles.userName}>{user.name}</Text>
             <Text style={styles.userMeta}>Carné nº #{user.cardNumber} · {user.branch || 'Sede central'}</Text>
             <Text style={styles.userMetaDim}>{user.email}</Text>
@@ -59,22 +62,22 @@ export default function AccountScreen({ user, loans, onReturn, onRenew, onCancel
           </Pressable>
         </View>
 
-        <View style={styles.stats}>
+        <View style={[styles.stats, isMobile && { flexDirection: 'row', gap: 8 }]}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{activeBooks.length}</Text>
-            <Text style={styles.statLabel}>Préstamos activos</Text>
+            <Text style={[styles.statValue, isMobile && styles.statValueMobile]}>{activeBooks.length}</Text>
+            <Text style={styles.statLabel}>Activos</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{reservedBooks.length}</Text>
+            <Text style={[styles.statValue, isMobile && styles.statValueMobile]}>{reservedBooks.length}</Text>
             <Text style={styles.statLabel}>Reservas</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{historyBooks.length}</Text>
+            <Text style={[styles.statValue, isMobile && styles.statValueMobile]}>{historyBooks.length}</Text>
             <Text style={styles.statLabel}>Devueltos</Text>
           </View>
         </View>
 
-        <View style={styles.tabs}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
           {[
             { id: 'active',  label: `Activos (${activeBooks.length})` },
             { id: 'reserved', label: `Reservas (${reservedBooks.length})` },
@@ -84,10 +87,10 @@ export default function AccountScreen({ user, loans, onReturn, onRenew, onCancel
               <Text style={[styles.tabText, tab === t.id && styles.tabTextActive]}>{t.label}</Text>
             </Pressable>
           ))}
-        </View>
+        </ScrollView>
       </View>
 
-      <View style={styles.body}>
+      <View style={[styles.body, { padding: pad, paddingTop: 20 }]}>
         {tab === 'active' && (
           activeBooks.length === 0
             ? <Empty title="Sin préstamos activos" text="Cuando solicites un libro, aparecerá aquí." />
@@ -96,7 +99,7 @@ export default function AccountScreen({ user, loans, onReturn, onRenew, onCancel
                 const overdue = days < 0;
                 const urgent = !overdue && days <= 3;
                 return (
-                  <View key={item.bookId} style={styles.row}>
+                  <View key={item.bookId} style={[styles.row, isMobile && styles.rowMobile]}>
                     <Pressable onPress={() => openBook(item.book.id)} style={styles.rowMain}>
                       <Text style={styles.rowTitle}>{item.book.title}</Text>
                       <Text style={styles.rowAuthor}>{item.book.author}</Text>
@@ -122,7 +125,7 @@ export default function AccountScreen({ user, loans, onReturn, onRenew, onCancel
           reservedBooks.length === 0
             ? <Empty title="Sin reservas" text="Reserva los libros que están prestados y te avisaremos." />
             : reservedBooks.map(item => (
-                <View key={item.bookId} style={styles.row}>
+                <View key={item.bookId} style={[styles.row, isMobile && styles.rowMobile]}>
                   <Pressable onPress={() => openBook(item.book.id)} style={styles.rowMain}>
                     <Text style={styles.rowTitle}>{item.book.title}</Text>
                     <Text style={styles.rowAuthor}>{item.book.author}</Text>
@@ -139,7 +142,7 @@ export default function AccountScreen({ user, loans, onReturn, onRenew, onCancel
           historyBooks.length === 0
             ? <Empty title="Sin historial" text="Tus devoluciones aparecerán aquí." />
             : historyBooks.map(item => (
-                <Pressable key={item.bookId + item.returned} onPress={() => openBook(item.book.id)} style={styles.row}>
+                <Pressable key={item.bookId + item.returned} onPress={() => openBook(item.book.id)} style={[styles.row, isMobile && styles.rowMobile]}>
                   <View style={styles.rowMain}>
                     <Text style={styles.rowTitle}>{item.book.title}</Text>
                     <Text style={styles.rowAuthor}>{item.book.author}</Text>
@@ -164,60 +167,65 @@ function Empty({ title, text }) {
 
 const styles = StyleSheet.create({
   scroll: { backgroundColor: colors.bg },
-  header: { padding: 40, paddingBottom: 0 },
+  header: {},
   userCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 18,
+    flexDirection: 'row', alignItems: 'center', gap: 14,
     backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1,
-    borderRadius: radius.lg, padding: 22,
+    borderRadius: radius.lg, padding: 18,
+    flexWrap: 'wrap',
     ...shadow.sm,
   },
-  avatar: { width: 60, height: 60, borderRadius: 30, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: '#fff', fontWeight: '700', fontSize: 20 },
-  userName: { fontFamily: fonts.serif, fontSize: 22, color: colors.ink },
+  userCardMobile: { gap: 10 },
+  avatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { color: '#fff', fontWeight: '700', fontSize: 18 },
+  userName: { fontFamily: fonts.serif, fontSize: 20, color: colors.ink },
   userMeta: { color: colors.ink2, fontSize: 13, marginTop: 2 },
   userMetaDim: { color: colors.ink3, fontSize: 12, marginTop: 2 },
   logoutBtn: { borderColor: colors.line, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.sm },
   logoutText: { color: colors.ink2, fontWeight: '600', fontSize: 12 },
 
-  stats: { flexDirection: 'row', gap: 14, marginTop: 18 },
-  statCard: { flex: 1, backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1, borderRadius: radius.md, padding: 18 },
-  statValue: { fontFamily: fonts.serif, fontSize: 36, color: colors.blue },
-  statLabel: { color: colors.ink2, fontSize: 12, fontWeight: '600', letterSpacing: 0.6, marginTop: 4 },
+  stats: { flexDirection: 'row', gap: 12, marginTop: 14 },
+  statCard: { flex: 1, backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1, borderRadius: radius.md, padding: 14 },
+  statValue: { fontFamily: fonts.serif, fontSize: 32, color: colors.blue },
+  statValueMobile: { fontSize: 24 },
+  statLabel: { color: colors.ink2, fontSize: 11, fontWeight: '600', letterSpacing: 0.6, marginTop: 2 },
 
-  tabs: { flexDirection: 'row', gap: 6, marginTop: 22, borderBottomWidth: 1, borderBottomColor: colors.line },
+  tabs: { flexDirection: 'row', gap: 4, marginTop: 18, borderBottomWidth: 1, borderBottomColor: colors.line },
   tab: { paddingVertical: 12, paddingHorizontal: 14 },
   tabActive: { borderBottomWidth: 2, borderBottomColor: colors.teal },
   tabText: { color: colors.ink2, fontWeight: '600', fontSize: 13 },
   tabTextActive: { color: colors.blue },
 
-  body: { padding: 40, paddingTop: 24, gap: 10 },
+  body: { gap: 10 },
   row: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
     backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1,
-    borderRadius: radius.md, padding: 16,
+    borderRadius: radius.md, padding: 14,
     ...shadow.sm,
   },
+  rowMobile: { flexDirection: 'column', alignItems: 'stretch' },
   rowMain: { flex: 1 },
-  rowTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.ink },
+  rowTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.ink },
   rowAuthor: { color: colors.ink2, fontSize: 13, marginTop: 2 },
   rowMeta: { color: colors.ink2, fontSize: 12, marginTop: 6 },
   overdue: { color: colors.warn, fontWeight: '700' },
   urgent: { color: '#a06030', fontWeight: '600' },
-  rowActions: { flexDirection: 'row', gap: 6 },
+  rowActions: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   smallBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.line, backgroundColor: '#fff' },
   smallBtnPrimary: { backgroundColor: colors.blue, borderColor: colors.blue },
   smallBtnText: { color: colors.ink, fontWeight: '600', fontSize: 12 },
 
-  empty: { backgroundColor: '#fff', borderColor: colors.line, borderStyle: 'dashed', borderWidth: 1, borderRadius: radius.md, padding: 40, alignItems: 'center' },
-  emptyTitle: { fontFamily: fonts.serif, fontSize: 20, color: colors.ink, marginBottom: 6 },
-  emptyText: { color: colors.ink2, fontSize: 14, textAlign: 'center' },
+  empty: { backgroundColor: '#fff', borderColor: colors.line, borderStyle: 'dashed', borderWidth: 1, borderRadius: radius.md, padding: 32, alignItems: 'center' },
+  emptyTitle: { fontFamily: fonts.serif, fontSize: 18, color: colors.ink, marginBottom: 6 },
+  emptyText: { color: colors.ink2, fontSize: 13, textAlign: 'center' },
 
-  guestWrap: { padding: 60, alignItems: 'center', gap: 16, backgroundColor: colors.bg },
-  guestTitle: { fontFamily: fonts.serif, fontSize: 32, color: colors.ink, textAlign: 'center' },
-  guestText: { color: colors.ink2, fontSize: 15, lineHeight: 22, textAlign: 'center', maxWidth: 460 },
+  guestWrap: { alignItems: 'center', gap: 16, backgroundColor: colors.bg },
+  guestTitle: { fontFamily: fonts.serif, fontSize: 28, color: colors.ink, textAlign: 'center' },
+  guestTitleMobile: { fontSize: 22 },
+  guestText: { color: colors.ink2, fontSize: 14, lineHeight: 20, textAlign: 'center', maxWidth: 460 },
   guestBtns: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  primaryBtn: { backgroundColor: colors.blue, paddingHorizontal: 22, paddingVertical: 12, borderRadius: radius.sm },
+  primaryBtn: { backgroundColor: colors.blue, paddingHorizontal: 22, paddingVertical: 12, borderRadius: radius.sm, alignItems: 'center' },
   primaryBtnText: { color: '#fff', fontWeight: '700', fontSize: 13, letterSpacing: 1.2, textTransform: 'uppercase' },
-  ghostBtn: { borderColor: colors.line, borderWidth: 1, paddingHorizontal: 22, paddingVertical: 12, borderRadius: radius.sm, backgroundColor: '#fff' },
+  ghostBtn: { borderColor: colors.line, borderWidth: 1, paddingHorizontal: 22, paddingVertical: 12, borderRadius: radius.sm, backgroundColor: '#fff', alignItems: 'center' },
   ghostBtnText: { color: colors.blue, fontWeight: '700', fontSize: 13, letterSpacing: 1.2, textTransform: 'uppercase' },
 });

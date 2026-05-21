@@ -3,7 +3,8 @@ import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { BOOKS, CATEGORIES } from '../data';
 import BookCover from '../components/BookCover';
 import BookCard from '../components/BookCard';
-import { colors, fonts, radius, shadow } from '../theme';
+import { colors, fonts, radius } from '../theme';
+import useBreakpoint from '../useBreakpoint';
 
 const SYNOPSIS = {
   b01: 'Una guardabosques regresa a su pueblo natal después de veinte años para descubrir que los árboles guardan más secretos que las personas.',
@@ -25,6 +26,7 @@ const SYNOPSIS = {
 };
 
 export default function BookDetailScreen({ bookId, navigate, user, loans, onBorrow, onReserve, openAuth }) {
+  const { isMobile } = useBreakpoint();
   const book = BOOKS.find(b => b.id === bookId);
   if (!book) return null;
 
@@ -41,19 +43,21 @@ export default function BookDetailScreen({ bookId, navigate, user, loans, onBorr
     else if (!alreadyReserved) onReserve(book.id);
   };
 
+  const pad = isMobile ? 16 : 40;
+
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 60 }}>
-      <Pressable onPress={() => navigate('catalog')} style={styles.back}>
+      <Pressable onPress={() => navigate('catalog')} style={[styles.back, { paddingHorizontal: pad }]}>
         <Text style={styles.backText}>← Volver al catálogo</Text>
       </Pressable>
 
-      <View style={styles.hero}>
-        <View style={styles.coverWrap}>
+      <View style={[styles.hero, isMobile && styles.heroMobile, { paddingHorizontal: pad }]}>
+        <View style={[styles.coverWrap, isMobile && { alignSelf: 'center' }]}>
           <BookCover book={book} size="lg" />
         </View>
         <View style={styles.info}>
           <Text style={styles.cat}>{category?.label || book.category}</Text>
-          <Text style={styles.title}>{book.title}</Text>
+          <Text style={[styles.title, isMobile && styles.titleMobile]}>{book.title}</Text>
           <Text style={styles.author}>{book.author} · {book.year}</Text>
           <View style={styles.tags}>
             {book.tags.map(t => (
@@ -99,17 +103,17 @@ export default function BookDetailScreen({ bookId, navigate, user, loans, onBorr
         </View>
       </View>
 
-      <View style={styles.section}>
+      <View style={[styles.section, { paddingHorizontal: pad }]}>
         <Text style={styles.sectionTitle}>Sinopsis</Text>
         <Text style={styles.synopsis}>{SYNOPSIS[book.id] || 'Una obra a descubrir.'}</Text>
       </View>
 
       {related.length > 0 && (
-        <View style={styles.section}>
+        <View style={[styles.section, { paddingHorizontal: pad }]}>
           <Text style={styles.sectionTitle}>También en {category?.label}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {related.map(r => (
-              <View key={r.id} style={{ marginRight: 16 }}>
+              <View key={r.id} style={{ marginRight: 14 }}>
                 <BookCard book={r} onPress={(id) => navigate('book', { id })} />
               </View>
             ))}
@@ -122,32 +126,34 @@ export default function BookDetailScreen({ bookId, navigate, user, loans, onBorr
 
 const styles = StyleSheet.create({
   scroll: { backgroundColor: colors.bg },
-  back: { padding: 24, paddingBottom: 0 },
+  back: { paddingTop: 24, paddingBottom: 0 },
   backText: { color: colors.blue, fontWeight: '600', fontSize: 13 },
-  hero: { flexDirection: 'row', flexWrap: 'wrap', gap: 40, padding: 40, paddingTop: 24 },
-  coverWrap: { alignItems: 'center' },
-  info: { flex: 1, minWidth: 260, gap: 12 },
+  hero: { flexDirection: 'row', flexWrap: 'wrap', gap: 32, paddingTop: 20 },
+  heroMobile: { flexDirection: 'column', gap: 20 },
+  coverWrap: {},
+  info: { flex: 1, minWidth: 240, gap: 10 },
   cat: { color: colors.teal, fontWeight: '700', fontSize: 11, letterSpacing: 2 },
-  title: { fontFamily: fonts.serif, fontSize: 40, color: colors.ink, lineHeight: 44 },
-  author: { fontSize: 16, color: colors.ink2 },
-  tags: { flexDirection: 'row', gap: 8, marginTop: 4, flexWrap: 'wrap' },
+  title: { fontFamily: fonts.serif, fontSize: 36, color: colors.ink, lineHeight: 40 },
+  titleMobile: { fontSize: 26, lineHeight: 30 },
+  author: { fontSize: 15, color: colors.ink2 },
+  tags: { flexDirection: 'row', gap: 8, marginTop: 2, flexWrap: 'wrap' },
   tagChip: { backgroundColor: colors.gray, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999 },
   tagText: { fontSize: 11, fontWeight: '600', color: colors.ink2, letterSpacing: 1, textTransform: 'uppercase' },
-  metaRow: { flexDirection: 'row', gap: 28, marginTop: 8 },
-  metaCol: { gap: 4 },
+  metaRow: { flexDirection: 'row', gap: 24, marginTop: 6, flexWrap: 'wrap' },
+  metaCol: { gap: 4, minWidth: 80 },
   metaLabel: { fontSize: 10, color: colors.ink3, letterSpacing: 1.2, fontWeight: '700' },
   metaValue: { fontSize: 18, color: colors.ink, fontWeight: '700' },
   metaValueSmall: { fontSize: 13, color: colors.ink },
-  availBox: { borderRadius: radius.md, padding: 16, marginTop: 14 },
+  availBox: { borderRadius: radius.md, padding: 14, marginTop: 10 },
   availOk: { backgroundColor: 'rgba(45,150,150,0.10)' },
   availWarn: { backgroundColor: 'rgba(194,65,12,0.08)' },
   availTitle: { fontWeight: '700', fontSize: 14 },
   availSub: { color: colors.ink2, fontSize: 12, marginTop: 4 },
-  actionBtn: { backgroundColor: colors.blue, paddingVertical: 14, borderRadius: radius.sm, alignItems: 'center', marginTop: 12 },
+  actionBtn: { backgroundColor: colors.blue, paddingVertical: 14, borderRadius: radius.sm, alignItems: 'center', marginTop: 10 },
   actionDisabled: { backgroundColor: colors.ink3 },
   actionText: { color: '#fff', fontWeight: '700', fontSize: 13, letterSpacing: 1.2, textTransform: 'uppercase' },
 
-  section: { paddingHorizontal: 40, marginTop: 32 },
-  sectionTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.ink, marginBottom: 14 },
+  section: { marginTop: 28 },
+  sectionTitle: { fontFamily: fonts.serif, fontSize: 22, color: colors.ink, marginBottom: 12 },
   synopsis: { fontSize: 15, color: colors.ink2, lineHeight: 24, maxWidth: 720 },
 });
