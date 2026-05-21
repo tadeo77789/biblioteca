@@ -29,6 +29,31 @@ export const BOOKS = [
   { id:'b16', title:'Cuaderno de poemas tibios',    author:'Bruno Cienfuegos',   year:2024, pages:88,  category:'poesia',     rating:4.3, available:1, total:1, isbn:'978-84-1392-016', tags:['Poesía'],                       palette:{ from:'#4a3a14', to:'#9c7a3a', accent:'#fff4c8' } },
 ];
 
+export function defaultLoans() {
+  const today = new Date();
+  const addDays = (d) => {
+    const x = new Date(today);
+    x.setDate(today.getDate() + d);
+    return x.toISOString().slice(0, 10);
+  };
+  return {
+    active: [
+      { bookId: 'b04', borrowed: addDays(-9),  due: addDays(12) },
+      { bookId: 'b11', borrowed: addDays(-18), due: addDays(3)  },
+      { bookId: 'b15', borrowed: addDays(-23), due: addDays(-2) },
+    ],
+    reservations: [
+      { bookId: 'b02', reservedOn: addDays(-2), estimatedReady: addDays(7) },
+    ],
+    history: [
+      { bookId: 'b06', returned: addDays(-30) },
+      { bookId: 'b10', returned: addDays(-55) },
+      { bookId: 'b03', returned: addDays(-80) },
+      { bookId: 'b09', returned: addDays(-110) },
+    ],
+  };
+}
+
 export const EVENTS = [
   { id:'e1', title:'Club de lectura: novela contemporánea',  date:'Jueves 28 mayo',  time:'18:00', room:'Sala Borges',     spots:'8 plazas libres' },
   { id:'e2', title:'Taller infantil: cuentacuentos',         date:'Sábado 30 mayo',  time:'10:00', room:'Sala Infantil',   spots:'12 plazas libres' },
