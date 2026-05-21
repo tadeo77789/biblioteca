@@ -6,10 +6,10 @@ skinparam linetype ortho
 entity users {
 
   * id : BIGINT <<PK>>
-  full_name : VARCHAR
-  email : VARCHAR
-  password : VARCHAR
-  phone : VARCHAR
+  full_name : VARCHAR(100)
+  email : VARCHAR(100)
+  password : VARCHAR(255)
+  phone : VARCHAR(20)
   created_at : TIMESTAMP
   updated_at : TIMESTAMP
 }
@@ -17,8 +17,8 @@ entity users {
 entity roles {
 
   * id : BIGINT <<PK>>
-  name : VARCHAR
-  description : VARCHAR
+  name : VARCHAR(100)
+  description : VARCHAR(255)
 }
 
 entity user_roles {
@@ -30,11 +30,11 @@ entity user_roles {
 entity books {
 
   * id : BIGINT <<PK>>
-  title: VARCHAR
+  title: VARCHAR(255)
   description : TEXT
-  isbn : VARCHAR
-  cover_url : VARCHAR
-  file_url : VARCHAR
+  isbn : VARCHAR(13)
+  cover_url : VARCHAR(255)
+  file_url : VARCHAR(255)
   published_year : INT
   available : BOOLEAN
   created_at : TIMESTAMP
@@ -44,7 +44,7 @@ entity books {
 entity authors {
 
   * id : BIGINT <<PK>>
-  full_name : VARCHAR
+  full_name : VARCHAR(100)
   biography : TEXT
   birth_date : DATE
   created_at : TIMESTAMP
@@ -53,7 +53,7 @@ entity authors {
 entity categories {
 
   * id : BIGINT <<PK>>
-  name : VARCHAR
+  name : VARCHAR(100)
   description : TEXT
   created_at : TIMESTAMP
 }
@@ -69,6 +69,14 @@ entity book_categories {
   * book_id : BIGINT <<FK>>
   * category_id : BIGINT <<FK>>
 }
+entity comments {
+
+  * id : BIGINT <<PK>>
+  user_id : BIGINT <<FK>>
+  book_id : BIGINT <<FK>>
+  content : TEXT
+  created_at : TIMESTAMP
+}
 
 entity loans {
 
@@ -77,7 +85,7 @@ entity loans {
   book_id : BIGINT <<FK>>
   loan_date : TIMESTAMP
   return_date : TIMESTAMP
-  status : VARCHAR
+  status : VARCHAR(50)
   created_at : TIMESTAMP
 }
 
@@ -106,4 +114,6 @@ authors ||--o{ book_authors
 books ||--o{ book_categories
 categories ||--o{ book_categories
 
+comments ||--o{ users
+comments ||--o{ books
 @enduml
