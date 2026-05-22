@@ -10,6 +10,7 @@ entity users {
   email : VARCHAR(100)
   password : VARCHAR(255)
   phone : VARCHAR(20)
+  profile_image_url : VARCHAR(255)
   created_at : TIMESTAMP
   updated_at : TIMESTAMP
 }
@@ -30,7 +31,7 @@ entity user_roles {
 entity books {
 
   * id : BIGINT <<PK>>
-  title: VARCHAR(255)
+  title: VARCHAR(100)
   description : TEXT
   isbn : VARCHAR(13)
   cover_url : VARCHAR(255)
@@ -69,14 +70,6 @@ entity book_categories {
   * book_id : BIGINT <<FK>>
   * category_id : BIGINT <<FK>>
 }
-entity comments {
-
-  * id : BIGINT <<PK>>
-  user_id : BIGINT <<FK>>
-  book_id : BIGINT <<FK>>
-  content : TEXT
-  created_at : TIMESTAMP
-}
 
 entity loans {
 
@@ -114,6 +107,4 @@ authors ||--o{ book_authors
 books ||--o{ book_categories
 categories ||--o{ book_categories
 
-comments ||--o{ users
-comments ||--o{ books
 @enduml
