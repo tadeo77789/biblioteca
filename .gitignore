@@ -1,0 +1,17 @@
+# GitHub Copilot Toolbox (auto-generated)
+.github/
+
+# Claude Code
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editores / IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
