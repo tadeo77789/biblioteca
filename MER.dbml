@@ -1,18 +1,18 @@
 Table users {
   id BIGINT [pk]
-  full_name VARCHAR(100)
+  full_name VARCHAR(30)
   email VARCHAR(100)
-  password VARCHAR(255)
+  password VARCHAR(60)
   phone VARCHAR(20)
-  profile_image_url VARCHAR(500)
+  profile_image_url VARCHAR(250)
   created_at DATETIME2
   updated_at DATETIME2
 }
 
 Table roles {
   id BIGINT [pk]
-  name VARCHAR(100)
-  description VARCHAR(255)
+  name VARCHAR(25)
+  description VARCHAR(200)
 }
 
 Table user_roles {
@@ -23,10 +23,10 @@ Table user_roles {
 Table books {
   id BIGINT [pk]
   title VARCHAR(100)
-  description VARCHAR(MAX)
+  description VARCHAR(500)
   isbn VARCHAR(20)
-  cover_url VARCHAR(500)
-  file_url VARCHAR(500)
+  cover_url VARCHAR(250)
+  file_url VARCHAR(250)
   published_year INT
   available BIT
   created_at DATETIME2
@@ -35,16 +35,16 @@ Table books {
 
 Table authors {
   id BIGINT [pk]
-  full_name VARCHAR(100)
-  biography VARCHAR(MAX)
+  full_name VARCHAR(50)
+  biography VARCHAR(500)
   birth_date DATE
   created_at DATETIME2
 }
 
 Table categories {
   id BIGINT [pk]
-  name VARCHAR(100)
-  description VARCHAR(MAX)
+  name VARCHAR(50)
+  description VARCHAR(500)
   created_at DATETIME2
 }
 
@@ -64,7 +64,7 @@ Table loans {
   book_id BIGINT [ref: > books.id]
   loan_date DATETIME2
   return_date DATETIME2
-  status VARCHAR(50)
+  status VARCHAR(50)  [note: 'activo, devuelto, pendiente']
   created_at DATETIME2
 }
 
@@ -73,6 +73,6 @@ Table reviews {
   user_id BIGINT [ref: > users.id]
   book_id BIGINT [ref: > books.id]
   rating INT
-  comment VARCHAR(MAX)
+  comment VARCHAR(500)
   created_at DATETIME2
 }
