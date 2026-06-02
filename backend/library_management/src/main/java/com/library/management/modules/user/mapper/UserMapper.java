@@ -1,5 +1,7 @@
-package com.library.management.modules.user.dto;
+package com.library.management.modules.user.mapper;
 
+import com.library.management.modules.user.dto.UserRequestDTO;
+import com.library.management.modules.user.dto.UserResponseDTO;
 import com.library.management.modules.user.model.User;
 import org.mapstruct.Mapper;
 

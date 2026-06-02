@@ -23,7 +23,9 @@ API REST de gestión de biblioteca usando **Spring Boot 3.5**, **Java 17**, **SQ
 - `mapstruct 1.6.3` — para convertir entre entidades y DTOs automáticamente
 
 ### Módulo `user` — capa de datos lista
-Ya están creados `User` (entidad JPA), `UserRepository` (extiende `JpaRepository` con `findByEmail` y `existsByEmail`), `UserRequestDTO` (con validaciones), `UserResponseDTO` (sin password) y `UserMapper` (MapStruct). Falta el `Service` y el `Controller` (asignado a Luis abajo).
+Ya están creados `User` (entidad JPA en `model/`), `UserRepository`, `UserRequestDTO` y `UserResponseDTO` (en `dto/`) y `UserMapper` (MapStruct en `mapper/`). Falta el `Service` y el `Controller` (asignado a Luis abajo).
+
+> **Convención de carpetas:** cada módulo se organiza así → `controller/`, `dto/` (solo DTOs), `mapper/` (MapStruct), `model/` (entidades JPA), `repository/`, `service/`. **El mapper NO va en `dto/`.**
 
 ---
 
@@ -102,7 +104,7 @@ Validaciones: `fullName` obligatorio (max 100), `nationality` opcional (max 50),
 #### 5. `AuthorResponseDTO.java`
 Incluye todos los campos públicos (id, fullName, nationality, birthDate, biography, createdAt).
 
-#### 6. `AuthorMapper.java`
+#### 6. `AuthorMapper.java` (en `modules/author/mapper/`)
 MapStruct con `toEntity(AuthorRequestDTO)` y `toDTO(Author)`.
 
 #### 7. `AuthorService.java`
@@ -145,7 +147,7 @@ Validaciones: `title` obligatorio (max 150), `isbn` obligatorio y único (max 20
 #### 5. `BookResponseDTO.java`
 Incluye id, title, isbn, nombre del autor (no solo el id), publishedYear, availableCopies, coverImageUrl, createdAt.
 
-#### 6. `BookMapper.java`
+#### 6. `BookMapper.java` (en `modules/book/mapper/`)
 MapStruct. La conversión del autor requiere un método auxiliar o usar `@Mapping` para mapear `author.fullName` → `authorName` en el response.
 
 #### 7. `BookService.java`
@@ -162,7 +164,7 @@ Validaciones: `userId` obligatorio, `bookId` obligatorio, `loanDate` obligatorio
 #### 10. `LoanResponseDTO.java`
 Incluye id, nombre del usuario, título del libro, loanDate, returnDate, status, createdAt.
 
-#### 11. `LoanMapper.java`
+#### 11. `LoanMapper.java` (en `modules/loan/mapper/`)
 MapStruct. Igual que en `Book`, mapear los campos derivados (`user.fullName`, `book.title`) en el response.
 
 #### 12. `LoanService.java`
@@ -227,4 +229,15 @@ library_management/
         ├── config/      ← Luis: Views
         ├── controller/  ← Luis: AbstractCrudController
         └── exception/   ← Luis: GlobalExceptionHandler
+```
+
+Cada módulo internamente:
+```
+<modulo>/
+├── controller/
+├── dto/         ← solo RequestDTO y ResponseDTO
+├── mapper/      ← MapStruct
+├── model/       ← entidad JPA
+├── repository/
+└── service/
 ```
