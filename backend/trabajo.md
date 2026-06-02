@@ -22,127 +22,194 @@ API REST de gestión de biblioteca usando **Spring Boot 3.5**, **Java 17**, **SQ
 - `lombok` — para generar getters, setters, constructores automáticamente
 - `mapstruct 1.6.3` — para convertir entre entidades y DTOs automáticamente
 
-### Módulo `user` — completado
-
-#### `User.java` (Model)
-Entidad JPA que representa la tabla `users` en la base de datos. Tiene los campos `id`, `fullName`, `email`, `password`, `phone`, `profileImageUrl`, `createdAt`, `updatedAt`. Los campos de fecha se llenan automáticamente con `@PrePersist` y `@PreUpdate`.
-
-#### `UserRepository.java`
-Interfaz que extiende `JpaRepository<User, Long>`. Provee métodos como `findAll()`, `findById()`, `save()` y `deleteById()` sin escribir SQL. También tiene métodos personalizados: `findByEmail()` y `existsByEmail()`.
-
-#### `UserRequestDTO.java`
-Objeto que recibe los datos del cliente al crear o actualizar un usuario. Tiene validaciones:
-- `fullName` → obligatorio, máximo 100 caracteres
-- `email` → obligatorio, formato de email válido
-- `password` → obligatorio, mínimo 6 caracteres
-- `phone` → opcional, máximo 20 caracteres
-
-#### `UserResponseDTO.java`
-Objeto que se devuelve al cliente como respuesta. **No incluye el campo `password`** por seguridad. Incluye: `id`, `fullName`, `email`, `phone`, `profileImageUrl`, `createdAt`.
-
-#### `UserMapper.java`
-Interfaz de MapStruct que convierte automáticamente entre `User` ↔ `UserRequestDTO` / `UserResponseDTO`. MapStruct genera la implementación en tiempo de compilación.
-
-```java
-@Mapper(componentModel = "spring")
-public interface UserMapper {
-    User toEntity(UserRequestDTO dto);
-    UserResponseDTO toDTO(User user);
-}
-```
+### Módulo `user` — capa de datos lista
+Ya están creados `User` (entidad JPA), `UserRepository` (extiende `JpaRepository` con `findByEmail` y `existsByEmail`), `UserRequestDTO` (con validaciones), `UserResponseDTO` (sin password) y `UserMapper` (MapStruct). Falta el `Service` y el `Controller` (asignado a Luis abajo).
 
 ---
 
-## Trabajo pendiente — distribución
+## Equipo y distribución del trabajo
 
-### Compañero 1
+Somos 3:
+- **Luis Duarte** — ya hizo el módulo `user` (capa de datos), así que su carga es menor: completa la infraestructura compartida y cierra su módulo.
+- **Juan Suaza** — módulo `author` completo + parte del módulo `loan`.
+- **Maria Olaya** — módulo `book` completo + parte del módulo `loan`.
 
-**Archivos a crear:**
+Juan y Maria llevan una carga equivalente.
 
-#### 1. `shared/config/Views.java`
-Clase con interfaces estáticas para controlar qué campos se devuelven en cada endpoint. `Summary` se usa en listas (devuelve pocos campos) y `Detail` en consultas individuales (devuelve todos los campos).
+---
 
-```
-Ubicación: src/main/java/com/library/management/shared/config/Views.java
-```
+## Luis Duarte — Infraestructura compartida + cerrar módulo user
 
-```java
-package com.library.management.shared.config;
+### 1. `shared/config/Views.java`
+Clase con dos interfaces anidadas (`Summary` y `Detail`, donde `Detail` extiende `Summary`). Se usan con `@JsonView` en los controladores para decidir qué campos se devuelven: `Summary` para listados (pocos campos) y `Detail` para consultas individuales (todos los campos).
 
-public class Views {
-    public interface Summary {}
-    public interface Detail extends Summary {}
-}
-```
+Ubicación: `src/main/java/com/library/management/shared/config/Views.java`
 
-#### 2. `shared/controller/AbstractCrudController.java`
-Controlador abstracto genérico con los 5 endpoints del CRUD ya definidos. Todos los módulos (users, books, authors, loans) van a extender esta clase para no repetir código.
+### 2. `shared/controller/AbstractCrudController.java`
+Controlador abstracto genérico parametrizado por `<RequestDTO, ResponseDTO>` con los 5 endpoints CRUD ya definidos. Las subclases solo implementan los 5 métodos abstractos (`getAll`, `getById`, `create`, `update`, `delete`) delegando al `Service`.
 
-Los métodos HTTP que debe tener:
-- `GET /` → devuelve lista, usa `@JsonView(Views.Summary.class)`
-- `GET /{id}` → devuelve uno, usa `@JsonView(Views.Detail.class)`
+Endpoints HTTP esperados:
+- `GET /` → lista, anotado con `@JsonView(Views.Summary.class)`
+- `GET /{id}` → uno, anotado con `@JsonView(Views.Detail.class)`
 - `POST /` → crea, valida con `@Valid`, retorna `201 Created`
 - `PUT /{id}` → actualiza, valida con `@Valid`, retorna `200 OK`
 - `DELETE /{id}` → elimina, retorna `204 No Content`
 
-Cada método llama a un método abstracto protegido (`getAll`, `getById`, `create`, `update`, `delete`) que las subclases implementan.
+Ubicación: `src/main/java/com/library/management/shared/controller/AbstractCrudController.java`
 
-```
-Ubicación: src/main/java/com/library/management/shared/controller/AbstractCrudController.java
-```
+### 3. `shared/exception/GlobalExceptionHandler.java`
+Clase anotada con `@RestControllerAdvice` que centraliza el manejo de errores. Debe atrapar al menos:
+- `MethodArgumentNotValidException` → `400 Bad Request` con el detalle de los campos inválidos
+- `EntityNotFoundException` (o una `ResourceNotFoundException` propia) → `404 Not Found`
+- `DataIntegrityViolationException` → `409 Conflict` (por ejemplo, email duplicado)
+- `Exception` genérica → `500 Internal Server Error`
+
+Ubicación: `src/main/java/com/library/management/shared/exception/GlobalExceptionHandler.java`
+
+### 4. `modules/user/service/UserService.java`
+Lógica de negocio del módulo. Usa `UserRepository` y `UserMapper`. Métodos:
+- `findAll()` → lista todos los usuarios como `UserResponseDTO`
+- `findById(Long id)` → busca por id; lanza excepción si no existe
+- `create(UserRequestDTO dto)` → verifica que el email no esté registrado, hashea el password y guarda
+- `update(Long id, UserRequestDTO dto)` → busca, actualiza campos y guarda
+- `delete(Long id)` → verifica existencia y elimina
+
+Ubicación: `src/main/java/com/library/management/modules/user/service/UserService.java`
+
+### 5. `modules/user/controller/UserController.java`
+Extiende `AbstractCrudController<UserRequestDTO, UserResponseDTO>`, mapea a `/api/users` y delega los 5 métodos al `UserService`.
+
+Ubicación: `src/main/java/com/library/management/modules/user/controller/UserController.java`
 
 ---
 
-### Compañero 2
+## Juan Suaza — Módulo `author` completo + parte del módulo `loan`
 
-**Archivos a crear:**
+### Módulo `author`
 
-#### 1. `modules/user/service/UserService.java`
-Clase con la lógica de negocio del módulo user. Usa `UserRepository` y `UserMapper`. Métodos que debe tener:
+#### 1. Liquibase `002-create-authors.yaml`
+Changelog que crea la tabla `authors` con: `id` (PK auto-increment), `full_name` (VARCHAR 100, not null), `nationality` (VARCHAR 50), `birth_date` (DATE), `biography` (VARCHAR 500), `created_at`, `updated_at`. Registrarlo en `db.changelog-master.yaml`.
 
-- `findAll()` → obtiene todos los usuarios y los convierte a `UserResponseDTO`
-- `findById(Long id)` → busca por id, lanza excepción si no existe
-- `create(UserRequestDTO dto)` → verifica que el email no esté registrado antes de guardar
-- `update(Long id, UserRequestDTO dto)` → busca el usuario, actualiza sus campos y guarda
-- `delete(Long id)` → verifica que existe antes de eliminar
+#### 2. `Author.java` (entidad)
+Entidad JPA mapeada a la tabla `authors` con los mismos campos del changelog. Usar `@PrePersist` / `@PreUpdate` para las fechas, igual que `User`.
 
-```
-Ubicación: src/main/java/com/library/management/modules/user/service/UserService.java
-```
+#### 3. `AuthorRepository.java`
+Extiende `JpaRepository<Author, Long>`. Agregar `existsByFullName(String fullName)` para evitar duplicados.
 
-#### 2. `modules/user/controller/UserController.java`
-Controlador concreto que extiende `AbstractCrudController<UserRequestDTO, UserResponseDTO>`. Solo implementa los 5 métodos abstractos delegando al `UserService`. El `@RequestMapping` debe ser `/api/users`.
+#### 4. `AuthorRequestDTO.java`
+Validaciones: `fullName` obligatorio (max 100), `nationality` opcional (max 50), `birthDate` opcional, `biography` opcional (max 500).
 
-```
-Ubicación: src/main/java/com/library/management/modules/user/controller/UserController.java
-```
+#### 5. `AuthorResponseDTO.java`
+Incluye todos los campos públicos (id, fullName, nationality, birthDate, biography, createdAt).
+
+#### 6. `AuthorMapper.java`
+MapStruct con `toEntity(AuthorRequestDTO)` y `toDTO(Author)`.
+
+#### 7. `AuthorService.java`
+Mismos métodos que `UserService` (`findAll`, `findById`, `create`, `update`, `delete`). En `create` debe verificar duplicado por nombre.
+
+#### 8. `AuthorController.java`
+Extiende `AbstractCrudController<AuthorRequestDTO, AuthorResponseDTO>`, mapea a `/api/authors`.
+
+### Parte del módulo `loan` (capa de datos)
+
+#### 9. Liquibase `004-create-loans.yaml`
+Changelog para la tabla `loans` con: `id`, `user_id` (FK a users), `book_id` (FK a books), `loan_date` (DATETIME, not null), `return_date` (DATETIME, nullable), `status` (VARCHAR 20, valores: `ACTIVE`, `RETURNED`, `OVERDUE`), `created_at`, `updated_at`.
+
+Importante: depende de que las tablas `users` y `books` existan, así que el `id` del changelog debe ser posterior al de Maria. Coordinar el orden.
+
+#### 10. `Loan.java` (entidad)
+Entidad JPA con relaciones `@ManyToOne` a `User` y `Book` (lazy). `status` como `enum LoanStatus { ACTIVE, RETURNED, OVERDUE }` mapeado con `@Enumerated(EnumType.STRING)`.
+
+#### 11. `LoanRepository.java`
+Extiende `JpaRepository<Loan, Long>`. Agregar consultas útiles: `findByUserId(Long userId)`, `findByStatus(LoanStatus status)`.
+
+---
+
+## Maria Olaya — Módulo `book` completo + parte del módulo `loan`
+
+### Módulo `book`
+
+#### 1. Liquibase `003-create-books.yaml`
+Changelog que crea la tabla `books` con: `id` (PK auto-increment), `title` (VARCHAR 150, not null), `isbn` (VARCHAR 20, unique), `author_id` (FK a authors), `published_year` (INT), `available_copies` (INT, default 0), `cover_image_url` (VARCHAR 255), `created_at`, `updated_at`. Registrarlo en `db.changelog-master.yaml` después del de `authors`.
+
+#### 2. `Book.java` (entidad)
+Entidad JPA. La relación con `Author` es `@ManyToOne` lazy. Usar `@PrePersist` / `@PreUpdate` para las fechas.
+
+#### 3. `BookRepository.java`
+Extiende `JpaRepository<Book, Long>`. Agregar `findByIsbn(String isbn)` y `existsByIsbn(String isbn)`.
+
+#### 4. `BookRequestDTO.java`
+Validaciones: `title` obligatorio (max 150), `isbn` obligatorio y único (max 20), `authorId` obligatorio, `publishedYear` opcional, `availableCopies` mínimo 0.
+
+#### 5. `BookResponseDTO.java`
+Incluye id, title, isbn, nombre del autor (no solo el id), publishedYear, availableCopies, coverImageUrl, createdAt.
+
+#### 6. `BookMapper.java`
+MapStruct. La conversión del autor requiere un método auxiliar o usar `@Mapping` para mapear `author.fullName` → `authorName` en el response.
+
+#### 7. `BookService.java`
+Métodos estándar. En `create` y `update` validar que el `authorId` exista (consultar `AuthorRepository`). En `create` validar que el `isbn` no esté duplicado.
+
+#### 8. `BookController.java`
+Extiende `AbstractCrudController<BookRequestDTO, BookResponseDTO>`, mapea a `/api/books`.
+
+### Parte del módulo `loan` (DTOs + lógica + controlador)
+
+#### 9. `LoanRequestDTO.java`
+Validaciones: `userId` obligatorio, `bookId` obligatorio, `loanDate` obligatorio, `returnDate` opcional.
+
+#### 10. `LoanResponseDTO.java`
+Incluye id, nombre del usuario, título del libro, loanDate, returnDate, status, createdAt.
+
+#### 11. `LoanMapper.java`
+MapStruct. Igual que en `Book`, mapear los campos derivados (`user.fullName`, `book.title`) en el response.
+
+#### 12. `LoanService.java`
+Métodos estándar más reglas de negocio:
+- Al crear: validar que el libro tenga `availableCopies > 0`, descontar una copia, marcar `status = ACTIVE`
+- Al devolver (`update` con `returnDate`): sumar una copia al libro, marcar `status = RETURNED`
+- No permitir eliminar préstamos con `status = ACTIVE`
+
+#### 13. `LoanController.java`
+Extiende `AbstractCrudController<LoanRequestDTO, LoanResponseDTO>`, mapea a `/api/loans`.
+
+---
+
+## Orden recomendado de ejecución
+
+1. **Luis** termina primero `Views` y `AbstractCrudController` para no bloquear a los demás.
+2. En paralelo, **Juan** y **Maria** trabajan sus changelogs de Liquibase y sus entidades/repositorios.
+3. Cuando Luis tenga el `AbstractCrudController` listo, todos cierran sus controladores.
+4. **Luis** termina `GlobalExceptionHandler` y su `UserService` / `UserController`.
+5. Probar cada módulo con Postman / Thunder Client antes de mergear.
 
 ---
 
 ## Cómo levantar el proyecto
 
 ### 1. Levantar SQL Server con Docker
-```bash
+```
 docker-compose up -d
 ```
 
 ### 2. Crear la base de datos (solo la primera vez)
-```bash
+```
 docker exec -it biblioteca_sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Password123*" -No -Q "CREATE DATABASE MER_Biblioteca"
 ```
 
 ### 3. Compilar el proyecto
-```bash
+```
 cd library_management
 ./mvnw clean install -DskipTests
 ```
 
 ### 4. Correr la aplicación
-```bash
+```
 ./mvnw spring-boot:run
 ```
 
-La API queda disponible en `http://localhost:8080/api/users`
+La API queda disponible en `http://localhost:8080/api/...`
 
 ---
 
@@ -152,13 +219,12 @@ La API queda disponible en `http://localhost:8080/api/users`
 library_management/
 └── src/main/java/com/library/management/
     ├── modules/
-    │   └── user/
-    │       ├── controller/   ← UserController.java        (Compañero 2)
-    │       ├── dto/          ← UserRequestDTO, UserResponseDTO, UserMapper
-    │       ├── model/        ← User.java
-    │       ├── repository/   ← UserRepository.java
-    │       └── service/      ← UserService.java            (Compañero 2)
+    │   ├── user/    ← Luis (cierra Service + Controller)
+    │   ├── author/  ← Juan
+    │   ├── book/    ← Maria
+    │   └── loan/    ← Juan (datos) + Maria (DTOs + lógica + controller)
     └── shared/
-        ├── config/           ← Views.java                  (Compañero 1)
-        └── controller/       ← AbstractCrudController.java (Compañero 1)
+        ├── config/      ← Luis: Views
+        ├── controller/  ← Luis: AbstractCrudController
+        └── exception/   ← Luis: GlobalExceptionHandler
 ```
