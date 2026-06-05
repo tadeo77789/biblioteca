@@ -37,7 +37,7 @@ Table authors {
   id BIGINT [pk]
   full_name VARCHAR(50)
   biography VARCHAR(500)
-  birth_date DATE
+  is_alived BIT
   created_at DATETIME2
 }
 

@@ -1,14 +1,10 @@
 package com.library.management.modules.user.model;
-import java.time.LocalDateTime;
 
-import com.library.management.modules.user.model.baseEntity.ABaseEntity;
+import com.library.management.shared.Model.ABaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,15 +33,4 @@ public class User extends ABaseEntity {
     @Column(name = "profile_image_url", length = 250)
     private String profileImageUrl;
     
-    
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-    @PreUpdate
-    protected void onUpdate(){
-        updatedAt = LocalDateTime.now();
-    }
 }
