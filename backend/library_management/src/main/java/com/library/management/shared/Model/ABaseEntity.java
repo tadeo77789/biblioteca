@@ -1,8 +1,8 @@
-package com.library.management.modules.user.model.baseEntity;
-
+package com.library.management.shared.Model;
 
 import java.time.LocalDateTime;
-
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,9 +16,10 @@ import lombok.experimental.SuperBuilder;
 @MappedSuperclass
 @NoArgsConstructor
 @SuperBuilder
-@Getter @Setter
+@Getter
+@Setter
 public abstract class ABaseEntity {
-   @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
@@ -30,4 +31,20 @@ public abstract class ABaseEntity {
 
     @Column(name = "updated_at")
     protected LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+
+        updatedAt = LocalDateTime.now();
+
+    }
+
 }
