@@ -17,6 +17,7 @@ public interface AuthorMapper {
     Author toEntity(AuthorRequestDTO dto);
     AuthorResponseDTO toDTO(Author author);
     
-    List<AuthorResponseDTO> toEntityList(List<AuthorRequestDTO> dtos);
+    List<AuthorResponseDTO> toDTOList(List<Author> authors);
+
 } 
 

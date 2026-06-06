@@ -13,4 +13,9 @@ List<AuthorResponseDTO> findAll();
 
 
 AuthorResponseDTO findById(Long id);
+
+AuthorResponseDTO update(Long id, AuthorRequestDTO dto);
+
+
+void softDelete(Long id);
 }

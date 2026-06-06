@@ -26,9 +26,17 @@ databaseChangeLog:
                   type: VARCHAR(500)
 
               - column:
-                  name: birth_date
-                  type: DATE
+                  name: is_alived
+                  type: BOOLEAN
 
               - column:
                   name: created_at
                   type: DATETIME2
+
+              - column:
+                  name: updated_at
+                  type: DATETIME2
+
+              - column:
+                  name: status
+                  type: BOOLEAN

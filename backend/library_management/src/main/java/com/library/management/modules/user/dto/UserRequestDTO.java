@@ -18,7 +18,7 @@ public class UserRequestDTO {
 
     @NotBlank(message = "Name is obligatory")
     @Size(max = 100, message = "max 100 characters")
-    private String fullName;
+    private String full_Name;
 
     @NotBlank(message = "email is obligatory")
     @Email(message = "email is not valid")

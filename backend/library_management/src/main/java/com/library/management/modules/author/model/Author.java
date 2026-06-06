@@ -20,8 +20,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Builder
 public class Author extends ABaseEntity {
-    @Column(name = "name", length = 100, nullable = false)
-    private String name;
+    @Column(name = "full_name", length = 100, nullable = false)
+    private String fullName;
 
     @Column(name = "biography", length = 500)
     private String biography;

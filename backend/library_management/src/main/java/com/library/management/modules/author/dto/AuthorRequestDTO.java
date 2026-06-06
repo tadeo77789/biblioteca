@@ -15,8 +15,10 @@ import lombok.Setter;
 public class AuthorRequestDTO {
     @NotBlank(message = "Name is obligatory")
     @Size(max = 100, message = "max 100 characters")
-    private String name;
+    private String fullName;
 
-    @Size(max = 150, message = "max 150 characters")
-    private String nationality;
+    @Size(max = 500, message = "max 500 characters")
+    private String biography;
+
+    private Boolean isAlived;
 }

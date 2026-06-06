@@ -17,9 +17,11 @@ public class AuthorResponseDTO {
 
 private Long id;
 
-private String name;
+private String fullName;
 
-private String nationality;
+private String biography;
+
+private Boolean isAlived;
 
 private LocalDateTime createdAt;
 
