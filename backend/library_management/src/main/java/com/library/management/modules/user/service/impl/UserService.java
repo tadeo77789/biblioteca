@@ -29,7 +29,7 @@ public class UserService implements IuserServices {
 
     @Override
     public List<UserResponseDTO> findAll(String filter) {
-        return mapper.toEntityList(data.findAll(filter));
+        return mapper.toDTOList(data.findAll(filter));
     }
 
      @Override

@@ -11,12 +11,12 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    // @Mapping(target = "id", ignore=true)
+
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     User toEntity(UserRequestDTO dto);
-    UserResponseDTO toDTO(User user);
-    
-    List<UserResponseDTO> toEntityList(List<User> dtos);
-} 
 
+    UserResponseDTO toDTO(User user);
+
+    List<UserResponseDTO> toDTOList(List<User> users);
+}
