@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-authors
+      author: suaza
+
+      changes:
+        - createTable:
+            tableName: authors
+
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: full_name
+                  type: VARCHAR(50)
+
+              - column:
+                  name: biography
+                  type: VARCHAR(500)
+
+              - column:
+                  name: is_alived
+                  type: BOOLEAN
+
+              - column:
+                  name: created_at
+                  type: DATETIME2
+
+              - column:
+                  name: updated_at
+                  type: DATETIME2
+
+              - column:
+                  name: status
+                  type: BOOLEAN

@@ -1,0 +1,49 @@
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+
+# ---------- IDE / Editors ----------
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+.factorypath
+.apt_generated
+.springBeans
+.sts4-cache
+
+# ---------- Java / Maven ----------
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+HELP.md
+.mvn/wrapper/maven-wrapper.jar
+
+# ---------- Node / Frontend ----------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---------- Expo ----------
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# ---------- Env / Secrets ----------
+.env
+.env.*
+!.env.example
+
+# ---------- Logs ----------
+*.log
+logs/
+
+# ---------- Claude local ----------
+.claude/
