@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-user-constraints
+      author: luis
+
+      changes:
+        - addNotNullConstraint:
+            tableName: users
+            columnName: full_name
+            columnDataType: VARCHAR(100)
+
+        - addNotNullConstraint:
+            tableName: users
+            columnName: email
+            columnDataType: VARCHAR(100)
+
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: email
+            constraintName: uk_users_email
+
+        - modifyDataType:
+            tableName: users
+            columnName: password
+            newDataType: VARCHAR(60)
+
+        - addNotNullConstraint:
+            tableName: users
+            columnName: password
+            columnDataType: VARCHAR(60)

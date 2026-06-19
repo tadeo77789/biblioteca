@@ -7,3 +7,9 @@ databaseChangeLog:
 
   - include:
       file: db/changelog/003-create-books.yaml
+
+  - include:
+      file: db/changelog/004-create-loans.yaml
+
+  - include:
+      file: db/changelog/005-add-user-constraints.yaml
