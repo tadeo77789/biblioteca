@@ -8,8 +8,7 @@ public interface IBookService {
 
     BookResponseDTO create(BookRequestDTO dto);
 
-    List<BookResponseDTO> findAll();
-
+    List<BookResponseDTO> findAll(String title, String author);
     BookResponseDTO findById(Long id);
 
     BookResponseDTO update(Long id, BookRequestDTO dto);
