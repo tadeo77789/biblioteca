@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.library.management.modules.user.model.User;
-import com.library.management.modules.user.model.baseEntity.ABaseEntity;
+import com.library.management.shared.Model.ABaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
