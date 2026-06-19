@@ -3,7 +3,6 @@ package com.library.management.modules.loan.service.impl;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.library.management.modules.loan.dto.LoanRequestDTO;
@@ -15,15 +14,15 @@ import com.library.management.modules.loan.service.IloanServices;
 import com.library.management.modules.user.model.User;
 import com.library.management.modules.user.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class LoanService implements IloanServices {
 
-    @Autowired
-    public LoanRepository data;
-    @Autowired
-    public UserRepository userData;
-    @Autowired
-    public LoanMapper mapper;
+    private final LoanRepository data;
+    private final UserRepository userData;
+    private final LoanMapper mapper;
 
     @Override
     public LoanResponseDTO createLoan(LoanRequestDTO loanDto) {
