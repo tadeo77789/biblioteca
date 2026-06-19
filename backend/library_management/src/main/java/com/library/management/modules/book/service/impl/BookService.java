@@ -39,12 +39,35 @@ public class BookService implements IBookService {
         return mapper.toDTO(saved);
     }
 
-    @Override
-    public List<BookResponseDTO> findAll() {
+   @Override
+    public List<BookResponseDTO> findAll(String title, String author) {
 
-        return mapper.toDTOList(repository.findAll());
+    List<Book> books;
+
+    if (title != null && !title.isBlank()
+            && author != null && !author.isBlank()) {
+
+        books = repository
+                .findByTitleContainingIgnoreCaseAndAuthor_NameContainingIgnoreCase(
+                        title,
+                        author);
+
+    } else if (title != null && !title.isBlank()) {
+
+        books = repository.findByTitleContainingIgnoreCase(title);
+
+    } else if (author != null && !author.isBlank()) {
+
+        books = repository.findByAuthor_NameContainingIgnoreCase(author);
+
+    } else {
+
+        books = repository.findAll();
 
     }
+
+    return mapper.toDTOList(books);
+}
 
     @Override
     public BookResponseDTO findById(Long id) {
